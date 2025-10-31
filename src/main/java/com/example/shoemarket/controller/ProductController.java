@@ -26,27 +26,66 @@ public class ProductController {
     // ✅ แสดงสินค้าทั้งหมด
     @GetMapping("")
     public String listProducts(Model model) {
-        List<Map<String, Object>> products = jdbcTemplate.queryForList("SELECT * FROM products ORDER BY product_id DESC");
+        List<Map<String, Object>> products = jdbcTemplate.queryForList(
+                "SELECT * FROM products ORDER BY product_id DESC");
         model.addAttribute("products", products);
         return "admin_products";
     }
 
-    // ✅ เพิ่มสินค้า พร้อม gen product_id อัตโนมัติ
+    // ✅ ค้นหาสินค้า
+    @GetMapping("/search")
+    public String searchProducts(@RequestParam(required = false) String brand,
+                                 @RequestParam(required = false) String modelName,
+                                 @RequestParam(required = false) String size,
+                                 @RequestParam(required = false) String status,
+                                 Model model) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE 1=1");
+
+        if (brand != null && !brand.trim().isEmpty()) {
+            sql.append(" AND brand LIKE '%").append(brand.trim()).append("%'");
+        }
+        if (modelName != null && !modelName.trim().isEmpty()) {
+            sql.append(" AND model LIKE '%").append(modelName.trim()).append("%'");
+        }
+        if (size != null && !size.trim().isEmpty()) {
+            sql.append(" AND size LIKE '%").append(size.trim()).append("%'");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND status='").append(status.trim()).append("'");
+        }
+
+        sql.append(" ORDER BY product_id DESC");
+
+        List<Map<String, Object>> products = jdbcTemplate.queryForList(sql.toString());
+        model.addAttribute("products", products);
+
+        // คืนค่าที่กรอกไว้ในช่องค้นหา
+        model.addAttribute("brand", brand);
+        model.addAttribute("modelName", modelName);
+        model.addAttribute("size", size);
+        model.addAttribute("status", status);
+
+        return "admin_products";
+    }
+
+    // ✅ เพิ่มสินค้าใหม่
     @PostMapping("/add")
-    public String addProduct(@RequestParam String brand,
-                             @RequestParam String model,
+    public String addProduct(@RequestParam String name,
+                             @RequestParam String brand,
+                             @RequestParam String category,
+                             @RequestParam String modelName,
                              @RequestParam String size,
                              @RequestParam double price,
+                             @RequestParam String condition,
                              @RequestParam String description,
                              @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
-        // ✅ สร้าง product_id ใหม่
+        // 🔹 Gen product_id อัตโนมัติ
         String lastId = null;
         try {
-            lastId = jdbcTemplate.queryForObject("SELECT product_id FROM products ORDER BY product_id DESC LIMIT 1", String.class);
-        } catch (Exception e) {
-            lastId = null;
-        }
+            lastId = jdbcTemplate.queryForObject(
+                    "SELECT product_id FROM products ORDER BY product_id DESC LIMIT 1", String.class);
+        } catch (Exception ignored) {}
 
         String newId = "P001";
         if (lastId != null && lastId.startsWith("P")) {
@@ -54,7 +93,7 @@ public class ProductController {
             newId = String.format("P%03d", num);
         }
 
-        // ✅ โฟลเดอร์ภาพ
+        // 🔹 จัดการไฟล์รูปภาพ
         String uploadDir = "src/main/resources/static/images/";
         new File(uploadDir).mkdirs();
 
@@ -64,10 +103,14 @@ public class ProductController {
             file.transferTo(new File(uploadDir + fileName));
         }
 
-        // ✅ insert ข้อมูล
-        String sql = "INSERT INTO products (product_id, brand, model, size, price, description, status, created_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, 'available', NOW())";
-        jdbcTemplate.update(sql, newId, brand, model, size, price, description);
+        // 🔹 เพิ่มสินค้าในฐานข้อมูล
+        String sql = """
+            INSERT INTO products 
+            (product_id, name, brand, category, model, size, price, product_condition, description, status, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', NOW())
+        """;
+
+        jdbcTemplate.update(sql, newId, name, brand, category, modelName, size, price, condition, description);
 
         return "redirect:/admin/products";
     }
@@ -82,13 +125,16 @@ public class ProductController {
         return "admin_products";
     }
 
-    // ✅ บันทึกการแก้ไข
+    // ✅ บันทึกการแก้ไขสินค้า
     @PostMapping("/update")
     public String updateProduct(@RequestParam String product_id,
+                                @RequestParam String name,
                                 @RequestParam String brand,
-                                @RequestParam String model,
+                                @RequestParam String category,
+                                @RequestParam String modelName,
                                 @RequestParam String size,
                                 @RequestParam double price,
+                                @RequestParam String condition,
                                 @RequestParam String description,
                                 @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
@@ -98,10 +144,20 @@ public class ProductController {
         if (file != null && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             file.transferTo(new File(uploadDir + fileName));
+            jdbcTemplate.update("""
+                UPDATE products 
+                SET name=?, brand=?, category=?, model=?, size=?, price=?, product_condition=?, description=?, image=? 
+                WHERE product_id=?""",
+                name, brand, category, modelName, size, price, condition, description, fileName, product_id
+            );
+        } else {
+            jdbcTemplate.update("""
+                UPDATE products 
+                SET name=?, brand=?, category=?, model=?, size=?, price=?, product_condition=?, description=? 
+                WHERE product_id=?""",
+                name, brand, category, modelName, size, price, condition, description, product_id
+            );
         }
-
-        jdbcTemplate.update("UPDATE products SET brand=?, model=?, size=?, price=?, description=? WHERE product_id=?",
-                brand, model, size, price, description, product_id);
 
         return "redirect:/admin/products";
     }

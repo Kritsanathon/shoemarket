@@ -26,12 +26,49 @@ public class OrderController {
     public String showOrders(Model model) {
         try {
             List<Map<String, Object>> orders = jdbcTemplate.queryForList(
-                    "SELECT id, customer_name, product_name, quantity, total_price, status FROM orders ORDER BY id DESC");
+                "SELECT id, customer_name, product_name, quantity, total_price, status FROM orders ORDER BY id DESC"
+            );
             model.addAttribute("orders", orders);
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "เกิดข้อผิดพลาดในการโหลดคำสั่งซื้อ: " + e.getMessage());
         }
+        return "admin_orders";
+    }
+
+    // ✅ ค้นหาคำสั่งซื้อ
+    @GetMapping("/search")
+    public String searchOrders(@RequestParam(required = false) String customer,
+                               @RequestParam(required = false) String product,
+                               @RequestParam(required = false) String status,
+                               Model model) {
+        try {
+            StringBuilder sql = new StringBuilder("SELECT * FROM orders WHERE 1=1");
+
+            if (customer != null && !customer.trim().isEmpty()) {
+                sql.append(" AND customer_name LIKE '%").append(customer.trim()).append("%'");
+            }
+            if (product != null && !product.trim().isEmpty()) {
+                sql.append(" AND product_name LIKE '%").append(product.trim()).append("%'");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                sql.append(" AND status='").append(status.trim()).append("'");
+            }
+
+            sql.append(" ORDER BY id DESC");
+
+            List<Map<String, Object>> orders = jdbcTemplate.queryForList(sql.toString());
+
+            model.addAttribute("orders", orders);
+            model.addAttribute("customer", customer);
+            model.addAttribute("product", product);
+            model.addAttribute("status", status);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "เกิดข้อผิดพลาดในการค้นหา: " + e.getMessage());
+        }
+
         return "admin_orders";
     }
 

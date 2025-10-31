@@ -107,42 +107,62 @@
   <div class="card p-3">
     <h5 class="mb-3">➕ เพิ่มสินค้าใหม่</h5>
     <form action="/admin/products/add" method="post" enctype="multipart/form-data" class="row g-3">
-      <div class="col-md-6">
-        <label class="form-label">ชื่อสินค้า</label>
-        <input type="text" name="name" class="form-control" required>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">ยี่ห้อ</label>
-        <input type="text" name="brand" class="form-control" required>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">ราคา (บาท)</label>
-        <input type="number" step="0.01" name="price" class="form-control" required>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">สภาพ</label>
-        <select name="condition" class="form-select">
-          <option>90%</option>
-          <option>95%</option>
-          <option>ใหม่</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">หมวดหมู่ / ไซซ์</label>
-        <input type="text" name="category" class="form-control" placeholder="เช่น US 8, US 9">
-      </div>
-      <div class="col-md-12">
-        <label class="form-label">รายละเอียดสินค้า</label>
-        <textarea name="description" rows="2" class="form-control"></textarea>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">รูปภาพ</label>
-        <input type="file" name="file" class="form-control">
-      </div>
-      <div class="col-md-6 d-flex align-items-end">
-        <button type="submit" class="btn btn-success w-100">บันทึกสินค้าใหม่</button>
-      </div>
-    </form>
+
+  <div class="col-md-6">
+    <label class="form-label">ชื่อสินค้า</label>
+    <input type="text" name="name" class="form-control" required>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">ยี่ห้อ</label>
+    <input type="text" name="brand" class="form-control" required>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">หมวดหมู่</label>
+    <input type="text" name="category" class="form-control" placeholder="เช่น รองเท้าผ้าใบ, รองเท้าวิ่ง">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">รุ่น</label>
+    <input type="text" name="modelName" class="form-control" placeholder="เช่น Mexico 66, Air Jordan">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">ขนาด</label>
+    <input type="text" name="size" class="form-control" placeholder="เช่น US 8.5, EU 42">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">ราคา (บาท)</label>
+    <input type="number" step="0.01" name="price" class="form-control" required>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">สภาพสินค้า</label>
+    <select name="condition" class="form-select">
+      <option>90%</option>
+      <option>95%</option>
+      <option>ใหม่</option>
+    </select>
+  </div>
+
+  <div class="col-md-12">
+    <label class="form-label">รายละเอียดสินค้า</label>
+    <textarea name="description" rows="2" class="form-control"></textarea>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">รูปภาพ</label>
+    <input type="file" name="file" class="form-control">
+  </div>
+
+  <div class="col-md-6 d-flex align-items-end">
+    <button type="submit" class="btn btn-success w-100">บันทึกสินค้าใหม่</button>
+  </div>
+
+</form>
+
   </div>
 </div>
 

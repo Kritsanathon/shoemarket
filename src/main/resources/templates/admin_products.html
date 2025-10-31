@@ -32,7 +32,6 @@
           enctype="multipart/form-data"
           class="row g-2 align-items-end">
       
-      <!-- ใช้ซ่อน id เฉพาะตอนแก้ไข -->
       <input type="hidden" name="product_id" th:if="${editing != null}" th:value="${editing.product_id}">
 
       <div class="col-md-2"><input type="text" name="brand" th:value="${editing?.brand}" placeholder="ยี่ห้อ" class="form-control" required></div>
@@ -47,6 +46,34 @@
       </div>
     </form>
   </div>
+
+  <!-- ✅ ฟอร์มค้นหา -->
+  <form action="/admin/products/search" method="get" class="search-bar mb-3">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input type="text" name="brand" placeholder="ค้นหายี่ห้อ..." class="form-control" th:value="${brand}">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="modelName" placeholder="ค้นหารุ่น..." class="form-control" th:value="${modelName}">
+      </div>
+      <div class="col-md-2">
+        <input type="text" name="size" placeholder="ค้นหาขนาด..." class="form-control" th:value="${size}">
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="">ทั้งหมด</option>
+          <option value="available" th:selected="${status == 'available'}">available</option>
+          <option value="sold" th:selected="${status == 'sold'}">sold</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">ค้นหา</button>
+      </div>
+      <div class="col-md-1">
+        <a href="/admin/products" class="btn btn-secondary w-100">รีเซ็ต</a>
+      </div>
+    </div>
+  </form>
 
   <!-- ✅ ตารางแสดงสินค้า -->
   <div class="card p-3">
@@ -74,8 +101,12 @@
           <td th:text="${p.description}"></td>
           <td>
             <a th:href="@{'/admin/products/edit/' + ${p.product_id}}" class="btn btn-sm btn-outline-primary">แก้ไข</a>
-            <a th:href="@{'/admin/products/delete/' + ${p.product_id}}" class="btn btn-sm btn-outline-danger">ลบ</a>
+            <a th:href="@{'/admin/products/delete/' + ${p.product_id}}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('ยืนยันการลบสินค้านี้?')">ลบ</a>
           </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(products)}">
+          <td colspan="8" class="text-muted">ไม่พบสินค้า</td>
         </tr>
       </tbody>
     </table>
