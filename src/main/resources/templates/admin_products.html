@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>จัดการสินค้า - รองเท้ามือสอง</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h5 class="text-center mb-3">รองเท้ามือสอง</h5>
+  <div class="text-center mb-3">👤 <span>Admin</span></div>
+  <a href="/admin/dashboard">แดชบอร์ด</a>
+  <a href="/admin/products" class="active">จัดการสินค้า</a>
+  <a href="/admin/members">จัดการสมาชิก</a>
+  <a href="/admin/orders">จัดการคำสั่งซื้อ</a>
+  <a href="/admin/reports">รายงาน</a>
+  <a href="/admin/settings">ตั้งค่า</a>
+  <a href="/logout">ออกจากระบบ</a>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <h4>📦 จัดการสินค้า</h4>
+
+  <!-- ✅ ฟอร์มเพิ่ม / แก้ไขสินค้า -->
+  <div class="card p-3 mb-4">
+    <form th:action="@{${editing != null} ? '/admin/products/update' : '/admin/products/add'}"
+          method="post"
+          enctype="multipart/form-data"
+          class="row g-2 align-items-end">
+      
+      <!-- ใช้ซ่อน id เฉพาะตอนแก้ไข -->
+      <input type="hidden" name="product_id" th:if="${editing != null}" th:value="${editing.product_id}">
+
+      <div class="col-md-2"><input type="text" name="brand" th:value="${editing?.brand}" placeholder="ยี่ห้อ" class="form-control" required></div>
+      <div class="col-md-2"><input type="text" name="model" th:value="${editing?.model}" placeholder="รุ่น" class="form-control" required></div>
+      <div class="col-md-2"><input type="text" name="size" th:value="${editing?.size}" placeholder="ขนาด" class="form-control" required></div>
+      <div class="col-md-2"><input type="number" step="0.01" name="price" th:value="${editing?.price}" placeholder="ราคา (บาท)" class="form-control" required></div>
+      <div class="col-md-2"><input type="text" name="description" th:value="${editing?.description}" placeholder="รายละเอียด" class="form-control"></div>
+      <div class="col-md-2"><input type="file" name="file" class="form-control"></div>
+      <div class="col-md-12 text-end mt-2">
+        <button type="submit" class="btn btn-success" th:text="${editing != null} ? 'บันทึกการแก้ไข' : 'เพิ่มสินค้า'"></button>
+        <a href="/admin/products" th:if="${editing != null}" class="btn btn-secondary">ยกเลิก</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- ✅ ตารางแสดงสินค้า -->
+  <div class="card p-3">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>รหัส</th>
+          <th>ยี่ห้อ</th>
+          <th>รุ่น</th>
+          <th>ขนาด</th>
+          <th>ราคา</th>
+          <th>สถานะ</th>
+          <th>รายละเอียด</th>
+          <th>การจัดการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="p : ${products}">
+          <td th:text="${p.product_id}"></td>
+          <td th:text="${p.brand}"></td>
+          <td th:text="${p.model}"></td>
+          <td th:text="${p.size}"></td>
+          <td th:text="'฿' + ${p.price}"></td>
+          <td th:text="${p.status}"></td>
+          <td th:text="${p.description}"></td>
+          <td>
+            <a th:href="@{'/admin/products/edit/' + ${p.product_id}}" class="btn btn-sm btn-outline-primary">แก้ไข</a>
+            <a th:href="@{'/admin/products/delete/' + ${p.product_id}}" class="btn btn-sm btn-outline-danger">ลบ</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

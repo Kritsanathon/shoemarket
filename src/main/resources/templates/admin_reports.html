@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>รายงานยอดขาย</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+</head>
+<body>
+
+<div class="wrapper d-flex">
+
+    <!-- ✅ Sidebar ฝังตรงนี้แทน fragments/sidebar -->
+    <div class="sidebar">
+  <h5 class="text-center mb-3">รองเท้ามือสอง</h5>
+  <div class="text-center mb-3">👤 <span>Admin</span></div>
+  <a href="/admin/dashboard">แดชบอร์ด</a>
+  <a href="/admin/products">จัดการสินค้า</a>
+  <a href="/admin/members">จัดการสมาชิก</a>
+  <a href="/admin/orders">จัดการคำสั่งซื้อ</a>
+  <a href="/admin/reports" class="active">รายงาน</a>
+  <a href="/admin/settings">ตั้งค่า</a>
+  <a href="/logout">ออกจากระบบ</a>
+</div>
+
+    <!-- ✅ เนื้อหาหลัก -->
+    <main class="content p-4 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>รายงานยอดขาย</h3>
+            
+        </div>
+
+        <!-- ฟิลเตอร์เลือกประเภท / ช่วงเวลา -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>ประเภท</label>
+                <select class="form-select">
+                    <option>ยอดขาย</option>
+                    <option>สินค้า</option>
+                    <option>ลูกค้า</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>ช่วงเวลา</label>
+                <select class="form-select">
+                    <option>เดือนนี้</option>
+                    <option>เดือนก่อนหน้า</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary w-100">แสดงรายงาน</button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-secondary w-100">รีเซ็ต</button>
+            </div>
+        </div>
+
+        <!-- การ์ดยอดสรุป -->
+        <div class="row text-center g-3">
+            <div class="col-md-3">
+                <div class="card p-3 summary-box">
+                    <h6>ยอดขายรวม</h6>
+                    <h4 th:text="'฿' + ${totalRevenue}">฿0</h4>
+                    <small class="text-success">↑ 12% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 summary-box">
+                    <h6>คำสั่งซื้อ</h6>
+                    <h4 th:text="${totalOrders}">0</h4>
+                    <small class="text-success">↑ 5% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 summary-box">
+                    <h6>ลูกค้าใหม่</h6>
+                    <h4 th:text="${memberCount}">0</h4>
+                    <small class="text-danger">↓ 8% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 summary-box">
+                    <h6>ยอดขายเดือนนี้</h6>
+                    <h4 th:text="'฿' + ${latestMonthSales}">฿0</h4>
+                    <small class="text-success">↑ 15% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-center g-3 mt-3">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>สินค้าขายดี</h6>
+                    <h5 th:text="${topProduct.name}">Classic</h5>
+                    <p class="text-muted" th:text="'ขายได้ ' + ${topProduct.sold_count} + ' คู่'"></p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <h6>อัตราการคืนสินค้า</h6>
+                    <h4>3.2%</h4>
+                    <small class="text-danger">↓ 0.5% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <h6>มูลค่าสินค้าคงคลัง</h6>
+                    <h4>฿128,750</h4>
+                    <small class="text-success">↑ 15% จากเดือนที่แล้ว</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ตาราง -->
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h5>คำสั่งซื้อล่าสุด</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>รหัสคำสั่งซื้อ</th>
+                            <th>สินค้า</th>
+                            <th>ราคา</th>
+                            <th>วันที่ขาย</th>
+                            <th>วิธีชำระเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${recentSales}">
+                            <td th:text="${s.sale_id}">1</td>
+                            <td th:text="${s.model}">Tiger</td>
+                            <td th:text="'฿' + ${s.final_price}">฿1000</td>
+                            <td th:text="${s.sale_date}">25 Jul 2024</td>
+                            <td th:text="${s.payment_method}">transfer</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="text-end mt-3">
+                    <a href="/admin/reports/export/excel" class="btn btn-success">ส่งออกเป็น Excel</a>
+                    <a href="/admin/reports/export/pdf" class="btn btn-danger">ส่งออกเป็น PDF</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

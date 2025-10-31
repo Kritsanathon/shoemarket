@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>จัดการคำสั่งซื้อ - รองเท้ามือสอง</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/admin-style.css}">
+  <style>
+    .search-bar input, .search-bar select {
+      border-radius: 8px;
+    }
+    .btn-sm { font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Sidebar -->
+<div class="sidebar">
+  <h5 class="text-center mb-3">รองเท้ามือสอง</h5>
+  <div class="text-center mb-3">👤 <span>Admin</span></div>
+  <a href="/admin/dashboard">แดชบอร์ด</a>
+  <a href="/admin/products">จัดการสินค้า</a>
+  <a href="/admin/members">จัดการสมาชิก</a>
+  <a href="/admin/orders" class="active">จัดการคำสั่งซื้อ</a>
+  <a href="/admin/reports">รายงาน</a>
+  <a href="/admin/settings">ตั้งค่า</a>
+  <a href="/logout">ออกจากระบบ</a>
+</div>
+
+<!-- ✅ Content -->
+<div class="content">
+  <h4>🧾 จัดการคำสั่งซื้อ</h4>
+
+  <!-- ✅ ฟอร์มเพิ่ม / แก้ไข -->
+  <div class="card p-3 mb-4">
+    <form th:action="@{${editing != null} ? '/admin/orders/update' : '/admin/orders/add'}"
+          method="post"
+          class="row g-2 align-items-end">
+
+      <input type="hidden" name="id" th:if="${editing != null}" th:value="${editing.id}">
+
+      <div class="col-md-2">
+        <input type="text" name="customer_name" th:value="${editing?.customer_name}" placeholder="ชื่อลูกค้า" class="form-control" required>
+      </div>
+
+      <div class="col-md-2">
+        <input type="text" name="product_name" th:value="${editing?.product_name}" placeholder="ชื่อสินค้า" class="form-control" required>
+      </div>
+
+      <div class="col-md-1">
+        <input type="number" name="quantity" th:value="${editing?.quantity}" placeholder="จำนวน" min="1" class="form-control" required>
+      </div>
+
+      <div class="col-md-2">
+        <input type="number" name="total_price" step="0.01" th:value="${editing?.total_price}" placeholder="ราคารวม" class="form-control" required>
+      </div>
+
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="pending" th:selected="${editing?.status == 'pending'}">รอดำเนินการ</option>
+          <option value="confirmed" th:selected="${editing?.status == 'confirmed'}">ยืนยันแล้ว</option>
+          <option value="shipped" th:selected="${editing?.status == 'shipped'}">จัดส่งแล้ว</option>
+          <option value="delivered" th:selected="${editing?.status == 'delivered'}">สำเร็จแล้ว</option>
+          <option value="cancelled" th:selected="${editing?.status == 'cancelled'}">ยกเลิก</option>
+        </select>
+      </div>
+
+      <div class="col-md-1 text-end">
+        <button type="submit" class="btn btn-success w-100" th:text="${editing != null} ? 'บันทึก' : 'เพิ่ม'"></button>
+      </div>
+
+      <div class="col-md-1 text-end" th:if="${editing != null}">
+        <a href="/admin/orders" class="btn btn-secondary w-100">ยกเลิก</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- ✅ ฟอร์มค้นหา -->
+  <form action="/admin/orders/search" method="get" class="search-bar mb-3">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input type="text" name="customer" placeholder="ค้นหาชื่อลูกค้า..." class="form-control" th:value="${customer}">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="product" placeholder="ค้นหาชื่อสินค้า..." class="form-control" th:value="${product}">
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="">ทั้งหมด</option>
+          <option value="pending" th:selected="${status == 'pending'}">รอดำเนินการ</option>
+          <option value="confirmed" th:selected="${status == 'confirmed'}">ยืนยันแล้ว</option>
+          <option value="shipped" th:selected="${status == 'shipped'}">จัดส่งแล้ว</option>
+          <option value="delivered" th:selected="${status == 'delivered'}">สำเร็จแล้ว</option>
+          <option value="cancelled" th:selected="${status == 'cancelled'}">ยกเลิก</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">🔍 ค้นหา</button>
+      </div>
+      <div class="col-md-2">
+        <a href="/admin/orders" class="btn btn-secondary w-100">รีเซ็ต</a>
+      </div>
+    </div>
+  </form>
+
+  <!-- ✅ ตารางคำสั่งซื้อ -->
+  <div class="card p-3">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>รหัส</th>
+          <th>ลูกค้า</th>
+          <th>สินค้า</th>
+          <th>จำนวน</th>
+          <th>ยอดรวม (บาท)</th>
+          <th>สถานะ</th>
+          <th>การดำเนินการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="o : ${orders}">
+          <td th:text="${o.id}"></td>
+          <td th:text="${o.customer_name}"></td>
+          <td th:text="${o.product_name}"></td>
+          <td th:text="${o.quantity}"></td>
+          <td th:text="${#numbers.formatDecimal(o.total_price, 0, 'COMMA', 2, 'POINT')} + ' บาท'"></td>
+          <td>
+            <span class="badge"
+                  th:classappend="${o.status == 'pending' ? 'bg-warning' :
+                                  (o.status == 'confirmed' ? 'bg-primary' :
+                                  (o.status == 'shipped' ? 'bg-info' :
+                                  (o.status == 'delivered' ? 'bg-success' : 'bg-danger')))}"
+                  th:text="${o.status}">
+            </span>
+          </td>
+          <td>
+            <a th:href="@{'/admin/orders/edit/' + ${o.id}}" class="btn btn-sm btn-outline-primary">แก้ไข</a>
+            <a th:href="@{'/admin/orders/delete/' + ${o.id}}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('ยืนยันการลบคำสั่งซื้อนี้?')">ลบ</a>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(orders)}">
+          <td colspan="7" class="text-muted">ไม่พบข้อมูลคำสั่งซื้อ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

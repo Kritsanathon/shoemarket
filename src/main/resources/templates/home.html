@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>รองเท้ามือสอง | หน้าแรก</title>
+    <style>
+        body {
+            font-family: "Prompt", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #222;
+        }
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            border-bottom: 1px solid #ddd;
+        }
+        nav h2 {
+            margin: 0;
+        }
+        .menu a {
+            margin: 0 20px;
+            text-decoration: none;
+            color: #222;
+        }
+        .menu a:hover {
+            text-decoration: underline;
+        }
+        .auth a {
+            border: 1px solid #222;
+            padding: 5px 12px;
+            text-decoration: none;
+            color: #222;
+            border-radius: 4px;
+        }
+        .auth a:hover {
+            background-color: #222;
+            color: white;
+        }
+        /* Product section */
+        .container {
+            padding: 40px 80px;
+        }
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .product-card {
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            background-color: #eee;
+            border-radius: 5px;
+        }
+        .product-name {
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .product-size {
+            font-size: 14px;
+            color: #555;
+        }
+        .product-price {
+            color: #c00;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        .btn {
+            background-color: #222;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #000;
+        }
+        /* Footer */
+        footer {
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding: 20px 0;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <h2>รองเท้ามือสอง</h2>
+    <div class="menu">
+        <a href="/">หน้าแรก</a>
+        <a href="/products">สินค้า</a>
+        <a href="/about">เกี่ยวกับเรา</a>
+    </div>
+    <div class="auth">
+        <a href="#">เข้าสู่ระบบ</a>
+        <a href="#">สมัครสมาชิก</a>
+    </div>
+</nav>
+
+<!-- Content -->
+<div class="container">
+    <h2>สินค้าแนะนำ</h2>
+    <div class="product-grid">
+        <div th:each="p : ${products}" class="product-card">
+            <img src="#" alt="รองเท้า">
+            <div class="product-name" th:text="${p.brand} + ' ' + ${p.model}"></div>
+            <div class="product-size" th:text="'ขนาด: ' + ${p.size}"></div>
+            <div class="product-price" th:text="${p.price} + ' บาท'"></div>
+            <button class="btn">เพิ่มลงตะกร้า</button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    © 2025 รองเท้ามือสอง. สงวนลิขสิทธิ์.
+</footer>
+
+</body>
+</html>
